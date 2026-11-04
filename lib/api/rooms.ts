@@ -88,3 +88,12 @@ export async function createBooking(input: {
   }>("/bookings", input);
   return data.data;
 }
+
+export async function createRoomRating(input: {
+  roomId: string;
+  rating: number;
+}): Promise<void> {
+  await apiClient.post(`/room/${input.roomId}/ratings`, {
+    rating: input.rating,
+  });
+}

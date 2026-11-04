@@ -2,8 +2,71 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState, type FormEvent } from "react";
 import { AuthGuard } from "@/components/shared/AuthGuard";
-import { useMyBookings } from "@/lib/hook";
+import { StarRating } from "@/components/shared";
+import { useCreateRoomRating, useMyBookings } from "@/lib/hook";
+
+function BookingRating({
+  roomId,
+  status,
+  myRating,
+}: {
+  roomId: string;
+  status: BookingStatus;
+  myRating?: number;
+}) {
+  const ratingMutation = useCreateRoomRating();
+  const [rating, setRating] = useState(0);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  if (status !== "checked_out") return null;
+
+  if (myRating !== undefined) {
+    return (
+      <div className="mt-3">
+        <p className="mb-1 text-sm font-medium">Your rating</p>
+        <StarRating value={myRating} readOnly size="sm" />
+      </div>
+    );
+  }
+
+  async function submitRating(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setErrorMessage("");
+    try {
+      await ratingMutation.mutateAsync({ roomId, rating });
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Could not submit your rating.",
+      );
+    }
+  }
+
+  return (
+    <form onSubmit={submitRating} className="mt-3">
+      <p className="mb-1 text-sm font-medium">Rate your stay</p>
+      <fieldset
+        disabled={ratingMutation.isPending}
+        className="flex items-center gap-3"
+      >
+        <StarRating value={rating} onChange={setRating} size="sm" />
+        <button
+          type="submit"
+          disabled={!rating || ratingMutation.isPending}
+          className="rounded bg-primary px-3 py-1 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {ratingMutation.isPending ? "Submitting..." : "Submit"}
+        </button>
+      </fieldset>
+      {errorMessage && (
+        <p role="alert" className="mt-1 text-sm text-red-600">
+          {errorMessage}
+        </p>
+      )}
+    </form>
+  );
+}
 
 function BookingRows() {
   const { data, isLoading, error } = useMyBookings();
@@ -69,6 +132,13 @@ function BookingRows() {
                 </p>
                 <p className="text-sm">Guests: {booking.guestsCount}</p>
                 <p className="text-base">Total: ${booking.totalPrice}</p>
+                {room && (
+                  <BookingRating
+                    roomId={room._id}
+                    status={booking.status}
+                    myRating={booking.myRating}
+                  />
+                )}
               </div>
             </div>
             <div className="flex flex-row md:items-center md:gap-8 mt-3 gap-8">

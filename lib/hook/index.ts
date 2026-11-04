@@ -25,6 +25,7 @@ export {
   useRoom,
   useMyBookings,
   useCreateBooking,
+  useCreateRoomRating,
   roomsKeys,
   bookingKeys,
 } from "./useRooms";

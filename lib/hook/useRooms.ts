@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createBooking,
+  createRoomRating,
   getMyBookings,
   getRooms,
   getRoom,
@@ -69,6 +70,16 @@ export function useCreateBooking() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createBooking,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
+    },
+  });
+}
+
+export function useCreateRoomRating() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createRoomRating,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
     },

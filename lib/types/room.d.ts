@@ -37,6 +37,7 @@ declare interface BookingI {
   totalPrice: number;
   paidAmount?: number;
   paymentStatus: PaymentStatus;
+  myRating?: number;
   phoneNumber: string;
   createdAt: string;
   updatedAt: string;
