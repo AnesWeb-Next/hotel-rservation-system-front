@@ -6,9 +6,13 @@ import { useRouter } from "next/navigation";
 import { useRooms } from "@/lib/hook";
 import { LoadingSpinner } from "@/components/shared";
 
-const ExploreRoom = () => {
+interface ExploreRoomProps {
+  initialRooms?: RoomsResponse;
+}
+
+const ExploreRoom = ({ initialRooms }: ExploreRoomProps) => {
   const router = useRouter();
-  const { data, isLoading, error } = useRooms({ limit: 4 });
+  const { data, isLoading, error } = useRooms({ limit: 4 }, initialRooms);
   return (
     <div
       className="flex flex-col items-center px-6 md:px-16 lg:px-24

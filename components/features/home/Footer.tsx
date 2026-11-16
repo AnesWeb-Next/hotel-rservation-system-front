@@ -7,7 +7,7 @@ const Footer = () => {
   return (
     <footer className="flex flex-wrap justify-center lg:justify-between overflow-hidden gap-10 md:gap-20 py-16 px-6 md:px-16 lg:px-24 xl:px-32 text-[13px] text-gray-500 bg-black">
       <div className="flex flex-wrap items-start gap-10 md:gap-15 xl:gap-35">
-        <Link href="/">
+        <Link href="/home">
           <Image
             width={157}
             height={40}
@@ -22,7 +22,7 @@ const Footer = () => {
 
           <ul className="mt-2 space-y-2">
             <li>
-              <Link href="/" className="hover:text-indigo-600 transition">
+              <Link href="/home" className="hover:text-indigo-600 transition">
                 Home
               </Link>
             </li>
@@ -79,7 +79,13 @@ const Footer = () => {
             </li>
 
             <li>
-              <Link href="/" className="hover:text-indigo-600 transition">
+              <Link href="/experience" className="hover:text-indigo-600 transition">
+                Experience
+              </Link>
+            </li>
+
+            <li>
+              <Link href="/about" className="hover:text-indigo-600 transition">
                 About
               </Link>
             </li>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +21,7 @@ import { registerSchema, type RegisterFormData } from "@/lib/validations";
 
 interface RegisterFormProps {
   /** Form submission handler */
-  onSubmit: (data: RegisterFormData) => void;
+  onSubmit: (data: RegisterFormData) => Promise<void> | void;
   /** Whether the form is submitting */
   isLoading?: boolean;
 }
@@ -32,6 +33,15 @@ export function RegisterForm({
   onSubmit,
   isLoading = false,
 }: RegisterFormProps) {
+  const [validationErrors, setValidationErrors] = useState<
+    Partial<
+      Record<
+        "fullName" | "email" | "password" | "confirmPassword",
+        string
+      >
+    >
+  >({});
+
   const form = useForm({
     defaultValues: {
       fullName: "",
@@ -43,9 +53,19 @@ export function RegisterForm({
     onSubmit: async ({ value }) => {
       // Parse and validate with Zod
       const result = registerSchema.safeParse(value);
-      if (result.success) {
-        onSubmit(result.data);
+      if (!result.success) {
+        const { fieldErrors } = result.error.flatten();
+        setValidationErrors({
+          fullName: fieldErrors.fullName?.[0],
+          email: fieldErrors.email?.[0],
+          password: fieldErrors.password?.[0],
+          confirmPassword: fieldErrors.confirmPassword?.[0],
+        });
+        return;
       }
+
+      setValidationErrors({});
+      await onSubmit(result.data);
     },
   });
 
@@ -76,13 +96,21 @@ export function RegisterForm({
                       type="text"
                       value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
+                      onChange={(e) => {
+                        field.handleChange(e.target.value);
+                        setValidationErrors((errors) => ({
+                          ...errors,
+                          fullName: undefined,
+                        }));
+                      }}
                       placeholder="John Doe"
                       disabled={isLoading}
                     />
-                    {field.state.meta.errors.length > 0 && (
+                    {(validationErrors.fullName ||
+                      field.state.meta.errors.length > 0) && (
                       <FieldDescription className="text-destructive">
-                        {field.state.meta.errors.join(", ")}
+                        {validationErrors.fullName ??
+                          field.state.meta.errors.join(", ")}
                       </FieldDescription>
                     )}
                   </Field>
@@ -99,13 +127,21 @@ export function RegisterForm({
                       type="email"
                       value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
+                      onChange={(e) => {
+                        field.handleChange(e.target.value);
+                        setValidationErrors((errors) => ({
+                          ...errors,
+                          email: undefined,
+                        }));
+                      }}
                       placeholder="m@example.com"
                       disabled={isLoading}
                     />
-                    {field.state.meta.errors.length > 0 && (
+                    {(validationErrors.email ||
+                      field.state.meta.errors.length > 0) && (
                       <FieldDescription className="text-destructive">
-                        {field.state.meta.errors.join(", ")}
+                        {validationErrors.email ??
+                          field.state.meta.errors.join(", ")}
                       </FieldDescription>
                     )}
                   </Field>
@@ -125,7 +161,13 @@ export function RegisterForm({
                       type="tel"
                       value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
+                      onChange={(e) => {
+                        field.handleChange(e.target.value);
+                        setValidationErrors((errors) => ({
+                          ...errors,
+                          password: undefined,
+                        }));
+                      }}
                       placeholder="Enter your phone number"
                       disabled={isLoading}
                     />
@@ -149,13 +191,21 @@ export function RegisterForm({
                         type="password"
                         value={field.state.value}
                         onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
+                        onChange={(e) => {
+                          field.handleChange(e.target.value);
+                          setValidationErrors((errors) => ({
+                            ...errors,
+                            confirmPassword: undefined,
+                          }));
+                        }}
                         placeholder="••••••••"
                         disabled={isLoading}
                       />
-                      {field.state.meta.errors.length > 0 && (
+                      {(validationErrors.password ||
+                        field.state.meta.errors.length > 0) && (
                         <FieldDescription className="text-destructive">
-                          {field.state.meta.errors.join(", ")}
+                          {validationErrors.password ??
+                            field.state.meta.errors.join(", ")}
                         </FieldDescription>
                       )}
                     </Field>
@@ -177,9 +227,11 @@ export function RegisterForm({
                         placeholder="••••••••"
                         disabled={isLoading}
                       />
-                      {field.state.meta.errors.length > 0 && (
+                      {(validationErrors.confirmPassword ||
+                        field.state.meta.errors.length > 0) && (
                         <FieldDescription className="text-destructive">
-                          {field.state.meta.errors.join(", ")}
+                          {validationErrors.confirmPassword ??
+                            field.state.meta.errors.join(", ")}
                         </FieldDescription>
                       )}
                     </Field>

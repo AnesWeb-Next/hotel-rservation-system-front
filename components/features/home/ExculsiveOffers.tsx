@@ -1,6 +1,7 @@
 import { assets, exclusiveOffers } from "@/assets/assets";
 import Title from "@/components/shared/Title";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 const ExculsiveOffers = () => {
@@ -20,7 +21,8 @@ const ExculsiveOffers = () => {
         our limited-time offers and special package to enhance your stay and
         create inforgettable memories"
         />
-        <button
+        <Link
+          href="/offers"
           className="group flex items-center gap-2 font-medium cursor-pointer
         max-md:mt-12"
         >
@@ -30,7 +32,7 @@ const ExculsiveOffers = () => {
             alt="arrow-icon"
             className="group-hover:translate-x-1 transition-all"
           />
-        </button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
@@ -55,18 +57,19 @@ const ExculsiveOffers = () => {
                 Expires {item.expiryDate}
               </p>
             </div>
-            <button
+            <Link
+              href={`/offers#offer-${item._id}`}
               className="flex items-center gap-2 font-medium
             cursor-pointer mt-4 mb-5"
             >
-              View Offers
+              View offer details
               <Image
                 src={assets.arrowIcon}
                 alt="arrow-icon"
                 className="invert group-hover:translate-x-1
                 transition-all"
               />
-            </button>
+            </Link>
           </div>
         ))}
       </div>

@@ -1,7 +1,14 @@
-"use client";
-
 import { AllRooms } from "@/components/features/pages";
+import { fetchRooms } from "@/lib/api/server";
 
-export default function RoomsPage() {
-  return <AllRooms />;
+export default async function RoomsPage() {
+  let initialRooms: RoomsResponse | undefined;
+
+  try {
+    initialRooms = await fetchRooms();
+  } catch (error) {
+    console.error("Failed to preload room listings", error);
+  }
+
+  return <AllRooms initialRooms={initialRooms} />;
 }

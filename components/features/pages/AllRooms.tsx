@@ -53,10 +53,17 @@ const RadioButton = ({
   );
 };
 
-const AllRooms = () => {
+interface AllRoomsProps {
+  initialRooms?: RoomsResponse;
+}
+
+const AllRooms = ({ initialRooms }: AllRoomsProps) => {
   const router = useRouter();
   const [openFilters, setOpenFilters] = useState(false);
-  const { data: roomsResponse, isLoading, error } = useRooms();
+  const { data: roomsResponse, isLoading, error } = useRooms(
+    undefined,
+    initialRooms,
+  );
   const roomTypes = ["Single Bed", "Double Bed", "Luxury Room", "Family Suits"];
   const priceRengers = [
     "0 to 500",
@@ -112,7 +119,17 @@ const AllRooms = () => {
           </p>
         </div>
 
-        {rooms.map((room) => {
+        {rooms.length === 0 ? (
+          <div className="mt-10 rounded-xl bg-slate-50 p-8 text-center">
+            <h2 className="text-xl font-semibold text-gray-800">
+              No rooms available right now
+            </h2>
+            <p className="mt-2 text-gray-600">
+              Please check back soon for available stays.
+            </p>
+          </div>
+        ) : (
+          rooms.map((room) => {
           const hotel = typeof room.hotel === "object" ? room.hotel : undefined;
           const roomPrice = Math.max(
             0,
@@ -189,7 +206,8 @@ const AllRooms = () => {
             </div>
           </div>
           );
-        })}
+          })
+        )}
       </div>
       <div className="bg-white w-80 border border-gray-300 text-gray-600 max-lg:mb-8 lg:mt-16">
         <div

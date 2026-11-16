@@ -20,8 +20,8 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", path: "/home" },
     { name: "Hotels", path: "/rooms" },
-    { name: "Experience", path: "/" },
-    { name: "About", path: "/" },
+    { name: "Experience", path: "/experience" },
+    { name: "About", path: "/about" },
   ];
 
   const pathname = usePathname();
@@ -29,7 +29,9 @@ const Navbar = () => {
   const [hasScrolled, setHasScrolled] = useState(false);
   const isScrolled = pathname !== "/" || hasScrolled;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isLoggedIn } = useAppSelector((state) => state.user);
+  const { user, isLoggedIn, isAdmin } = useAppSelector((state) => state.user);
+  const dashboardUrl =
+    process.env.NEXT_PUBLIC_DASHBOARD_URL ?? "http://localhost:3001";
   const logoutMutation = useLogout();
 
   const handleLogout = async () => {
@@ -123,19 +125,19 @@ const Navbar = () => {
               <DropdownMenuItem asChild>
                 <Link href="/profile">Profile Settings</Link>
               </DropdownMenuItem>
+              {isAdmin && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <a href={dashboardUrl}>Admin Dashboard</a>
+                  </DropdownMenuItem>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : (
-          <button
-            className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${
-              isScrolled ? "text-black" : "text-white"
-            }`}
-          >
-            Dashboard
-          </button>
-        )}
+        ) : null}
       </div>
 
       {/* Desktop Right */}
@@ -218,6 +220,16 @@ const Navbar = () => {
                     Profile Settings
                   </Link>
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <a href={dashboardUrl} onClick={() => setIsMenuOpen(false)}>
+                        Admin Dashboard
+                      </a>
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
@@ -232,10 +244,6 @@ const Navbar = () => {
           </>
         ) : (
           <>
-            <button className="border px-4 py-1 text-sm font-light rounded-full">
-              Dashboard
-            </button>
-
             <Link
               href="/auth/login"
               className="bg-black text-white px-8 py-2.5 rounded-full"

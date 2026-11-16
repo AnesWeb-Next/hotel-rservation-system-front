@@ -41,10 +41,11 @@ export function useRooms(params?: {
   search?: string;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
-}) {
+}, initialData?: RoomsResponse) {
   return useQuery({
     queryKey: roomsKeys.list(params),
     queryFn: () => getRooms(params),
+    initialData,
   });
 }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +22,7 @@ import {
 
 interface LoginFormProps {
   /** Form submission handler */
-  onSubmit: (data: LoginFormData) => void;
+  onSubmit: (data: LoginFormData) => Promise<void> | void;
   /** Whether the form is submitting */
   isLoading?: boolean;
 }
@@ -30,6 +31,10 @@ interface LoginFormProps {
  * LoginForm component - form for user authentication
  */
 export function LoginForm({ onSubmit, isLoading = false }: LoginFormProps) {
+  const [validationErrors, setValidationErrors] = useState<
+    Partial<Record<"email" | "password", string>>
+  >({});
+
   const form = useForm({
     defaultValues: {
       email: "",
@@ -38,9 +43,17 @@ export function LoginForm({ onSubmit, isLoading = false }: LoginFormProps) {
     },
     onSubmit: async ({ value }) => {
       const result = loginSchema.safeParse(value);
-      if (result.success) {
-        onSubmit(result.data);
+      if (!result.success) {
+        const { fieldErrors } = result.error.flatten();
+        setValidationErrors({
+          email: fieldErrors.email?.[0],
+          password: fieldErrors.password?.[0],
+        });
+        return;
       }
+
+      setValidationErrors({});
+      await onSubmit(result.data);
     },
   });
 
@@ -87,15 +100,21 @@ export function LoginForm({ onSubmit, isLoading = false }: LoginFormProps) {
                       type="email"
                       value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
+                      onChange={(event) => {
+                        field.handleChange(event.target.value);
+                        setValidationErrors((errors) => ({
+                          ...errors,
+                          email: undefined,
+                        }));
+                      }}
                       placeholder="m@example.com"
                       disabled={isLoading}
                     />
-                    {field.state.meta.errors.length > 0 && (
+                    {(validationErrors.email ||
+                      field.state.meta.errors.length > 0) && (
                       <FieldDescription className="text-destructive">
-                        {field.state.meta.errors.join(", ")}
+                        {validationErrors.email ??
+                          field.state.meta.errors.join(", ")}
                       </FieldDescription>
                     )}
                   </Field>
@@ -119,15 +138,21 @@ export function LoginForm({ onSubmit, isLoading = false }: LoginFormProps) {
                       type="password"
                       value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
+                      onChange={(event) => {
+                        field.handleChange(event.target.value);
+                        setValidationErrors((errors) => ({
+                          ...errors,
+                          password: undefined,
+                        }));
+                      }}
                       placeholder="••••••••"
                       disabled={isLoading}
                     />
-                    {field.state.meta.errors.length > 0 && (
+                    {(validationErrors.password ||
+                      field.state.meta.errors.length > 0) && (
                       <FieldDescription className="text-destructive">
-                        {field.state.meta.errors.join(", ")}
+                        {validationErrors.password ??
+                          field.state.meta.errors.join(", ")}
                       </FieldDescription>
                     )}
                   </Field>

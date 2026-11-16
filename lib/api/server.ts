@@ -38,6 +38,36 @@ async function serverFetch<T>(
   return res.json() as Promise<T>;
 }
 
+export async function fetchRooms(params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}): Promise<RoomsResponse> {
+  const searchParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(params ?? {})) {
+    if (value !== undefined) {
+      searchParams.set(key, String(value));
+    }
+  }
+  const query = searchParams.toString();
+  const response = await serverFetch<ApiPaginatedResponse<RoomI>>(
+    `/room${query ? `?${query}` : ""}`,
+  );
+
+  return {
+    data: response.data,
+    total: response.pagination.total,
+    page: response.pagination.page,
+    limit: response.pagination.limit,
+  };
+}
+
+export async function fetchHomeRooms(): Promise<RoomsResponse> {
+  return fetchRooms({ limit: 4 });
+}
+
 // ─── User profile (auth required) ────────────────────────────
 
 export async function fetchUserProfile(): Promise<UserI> {
