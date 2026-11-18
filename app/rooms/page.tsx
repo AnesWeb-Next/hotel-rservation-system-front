@@ -5,7 +5,7 @@ export default async function RoomsPage() {
   let initialRooms: RoomsResponse | undefined;
 
   try {
-    initialRooms = await fetchRooms();
+    initialRooms = await fetchRooms({ limit: 100 });
   } catch (error) {
     console.error("Failed to preload room listings", error);
   }

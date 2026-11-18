@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import Home from "./home/page";
 
-export default async function HomePage() {
-  redirect("/auth/register");
+export default function HomePage() {
+  return <Home />;
 }
